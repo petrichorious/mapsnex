@@ -298,16 +298,12 @@
   .side-label{position:absolute;text-align:center;font-family:'Cinzel',serif;letter-spacing:.16em;
     text-transform:uppercase;font-size:14px;font-weight:700}
   .map-note{position:absolute;text-align:center;font-style:italic;font-size:14.5px;color:#cdc4b4}
-  .crest{position:absolute;width:160px;display:flex;flex-direction:column;align-items:center;
+  .crest{position:absolute;width:150px;display:flex;flex-direction:column;align-items:center;
     text-align:center;user-select:none}
-  .crest .shield{width:74px;height:74px;border-radius:19px;display:grid;place-items:center;font-size:34px;
-    border:2px solid var(--hc,var(--gold));
-    background:linear-gradient(160deg,var(--hc2),rgba(11,10,15,.55));
-    box-shadow:0 8px 26px rgba(0,0,0,.5),0 0 0 4px rgba(0,0,0,.3)}
-  .crest .cn{font-family:'Cinzel',serif;font-size:13px;font-weight:700;margin-top:9px;
-    color:var(--ink);line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.9)}
-  .crest .cr{font-size:11px;font-style:italic;color:var(--muted);margin-top:1px;
-    text-shadow:0 2px 8px rgba(0,0,0,.9)}
+  .crest .nm{font-family:'Cinzel',serif;font-size:12.5px;font-weight:700;margin-top:9px;
+    line-height:1.15;color:var(--ink);max-width:144px;text-shadow:0 2px 8px rgba(0,0,0,.9)}
+  .crest .ti{font-size:11px;font-style:italic;color:var(--muted);margin-top:1px;line-height:1.15;
+    max-width:144px;text-shadow:0 2px 8px rgba(0,0,0,.9)}
   .sw-house{flex:none;width:15px;height:15px;border-radius:5px;margin-right:9px;
     border:1.5px solid var(--gold);background:rgba(201,162,75,.14)}
 
@@ -1027,7 +1023,7 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
   const viewport=document.getElementById('viewport2');
   const world=document.getElementById('world2');
   const svg=document.getElementById('links2');
-  const CW=2100, CH=2270, CARDW2=150;
+  const CW=2100, CH=2340, CARDW2=150;
   world.style.width=CW+'px'; world.style.height=CH+'px';
   svg.setAttribute('width',CW); svg.setAttribute('height',CH);
 
@@ -1073,16 +1069,16 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
   ];
   const HOUSE_ALLIES=[
     {side:'The Blacks', cx:560, color:cssVar('--blk'), list:[
-      {sigil:'🐺',name:'House Stark',region:'The North',hc:'#8b94a3',hc2:'rgba(30,34,42,.85)'},
-      {sigil:'🦅',name:'House Arryn',region:'The Vale',hc:'#5a8fd6',hc2:'rgba(22,38,63,.85)'},
-      {sigil:'🐟',name:'House Tully',region:'The Riverlands',hc:'#3f86b0',hc2:'rgba(14,40,54,.85)'},
-      {sigil:'🪶',name:'House Blackwood',region:'Raventree · Riverlands',hc:'#9a5a72',hc2:'rgba(48,22,34,.85)'},
+      {sigil:'🐺',name:'House Stark',region:'The North',head:'Cregan Stark',img:'cregan',hc:'#8b94a3',hc2:'rgba(30,34,42,.85)'},
+      {sigil:'🦅',name:'House Arryn',region:'The Vale',head:'Jeyne Arryn',img:'jeyne',hc:'#5a8fd6',hc2:'rgba(22,38,63,.85)'},
+      {sigil:'🐟',name:'House Tully',region:'Riverlands',head:'Oscar Tully',img:'oscar',hc:'#3f86b0',hc2:'rgba(14,40,54,.85)'},
+      {sigil:'🪶',name:'House Blackwood',region:'Riverlands',head:'Willem Blackwood',img:'willem',hc:'#9a5a72',hc2:'rgba(48,22,34,.85)'},
     ]},
     {side:'The Greens', cx:1540, color:cssVar('--grn'), list:[
-      {sigil:'🦁',name:'House Lannister',region:'The Westerlands',hc:'#c9a24b',hc2:'rgba(58,44,12,.85)'},
-      {sigil:'🦌',name:'House Baratheon',region:'The Stormlands',hc:'#b9892f',hc2:'rgba(46,32,10,.85)'},
-      {sigil:'🗼',name:'House Hightower',region:'Oldtown · The Reach',hc:'#9aa3ad',hc2:'rgba(28,34,40,.85)'},
-      {sigil:'🐎',name:'House Bracken',region:'Stone Hedge · Riverlands',hc:'#b0613e',hc2:'rgba(48,26,16,.85)'},
+      {sigil:'🦁',name:'House Lannister',region:'Westerlands',head:'Jason Lannister',img:'jason',hc:'#c9a24b',hc2:'rgba(58,44,12,.85)'},
+      {sigil:'🦌',name:'House Baratheon',region:'Stormlands',head:'Borros Baratheon',img:'borros',hc:'#b9892f',hc2:'rgba(46,32,10,.85)'},
+      {sigil:'🗼',name:'House Hightower',region:'Oldtown',head:'Gwayne Hightower',img:'gwayne',hc:'#9aa3ad',hc2:'rgba(28,34,40,.85)'},
+      {sigil:'🐎',name:'House Bracken',region:'Riverlands',head:'Humfrey Bracken',img:'humfrey',hc:'#b0613e',hc2:'rgba(48,26,16,.85)'},
     ]},
   ];
 
@@ -1118,8 +1114,14 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
     el.className='crest';
     el.style.left=c.x+'px'; el.style.top=c.y+'px';
     el.style.setProperty('--hc',c.hc); el.style.setProperty('--hc2',c.hc2);
-    el.innerHTML=`<div class="shield">${c.sigil}</div>
-      <div class="cn">${c.name}</div><div class="cr">${c.region}</div>`;
+    const mono=c.head.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    el.innerHTML=`
+      <div class="portrait"><div class="frame">
+        <span class="mono">${mono}</span>
+        <img src="images/${c.img}.jpg" alt="${c.head}, ${c.name}" loading="lazy" onerror="this.remove()"></div>
+        <span class="glyph">${c.sigil}</span></div>
+      <div class="nm">${c.head}</div>
+      <div class="ti">${c.name} · ${c.region}</div>`;
     world.appendChild(el);
   }
   function label(text,x,y,w,cls,color){
@@ -1158,27 +1160,27 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
   });
 
   /* central divider + VS medallion */
-  line(1050,250,1050,1930,'rgba(201,162,75,.28)',1.5,'2 10');
+  line(1050,250,1050,1990,'rgba(201,162,75,.28)',1.5,'2 10');
   const vs=document.createElement('div');
   vs.className='vs-badge'; vs.style.left=(1050-38)+'px'; vs.style.top='150px';
   vs.textContent='VS'; world.appendChild(vs);
 
-  /* ---- the realm takes sides: allied great houses & regions ---- */
+  /* ---- the realm takes sides: allied great houses & their heads ---- */
   label('The Realm Takes Sides',0,1582,CW,'fallen-label','rgba(201,162,75,.85)');
   line(170,1576,CW-170,1576,'rgba(201,162,75,.18)',1.5,'1 9');
   HOUSE_ALLIES.forEach(g=>{
     label('Sworn to '+g.side,g.cx-200,1626,400,'side-label',g.color);
     g.list.forEach((c,i)=>{
-      c.x=(i%2===0 ? g.cx-105 : g.cx+105)-80;
-      c.y=1684+Math.floor(i/2)*156;
+      c.x=(i%2===0 ? g.cx-105 : g.cx+105)-75;
+      c.y=1684+Math.floor(i/2)*172;
       crest(c);
     });
   });
   label('The river lords are split — Blackwood declares for the Blacks, Bracken for the Greens.',
-        0,1998,CW,'map-note');
+        0,2032,CW,'map-note');
 
   /* unaligned / fell before the war */
-  const FY=2090, n=FALLEN.length, xa=250, xb=CW-250, step=(xb-xa)/(n-1);
+  const FY=2150, n=FALLEN.length, xa=250, xb=CW-250, step=(xb-xa)/(n-1);
   line(170,FY-72,CW-170,FY-72,'rgba(201,162,75,.18)',1.5,'1 9');
   const lab=document.createElement('div');
   lab.className='fallen-label'; lab.style.left='0'; lab.style.top=(FY-58)+'px'; lab.style.width=CW+'px';

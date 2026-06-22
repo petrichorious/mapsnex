@@ -39,6 +39,15 @@ CHARS = {
     "maelor":   ["Maelor Targaryen"],
     "baela":    ["Baela Targaryen"],
     "rhaena":   ["Rhaena Targaryen (daughter of Daemon)", "Rhaena Targaryen"],
+    # allied house heads (alliances map)
+    "cregan":   ["Cregan Stark"],
+    "jeyne":    ["Jeyne Arryn"],
+    "oscar":    ["Oscar Tully"],
+    "willem":   ["Willem Blackwood"],
+    "jason":    ["Jason Lannister"],
+    "borros":   ["Borros Baratheon"],
+    "gwayne":   ["Gwayne Hightower"],
+    "humfrey":  ["Humfrey Bracken", "Amos Bracken"],
 }
 
 API_BASE = "https://gameofthrones.fandom.com/api.php"
