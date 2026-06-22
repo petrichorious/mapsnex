@@ -153,6 +153,8 @@
     --str:#b07a3e; --str2:#3a2713;
     --roy:#7d92c4; --roy2:#212c44;
     --arr:#5a8fd6; --arr2:#16263f;
+    --blk:#cf2030; --blk2:rgba(58,10,16,.85);
+    --grn:#37a862; --grn2:rgba(12,46,27,.85);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth}
@@ -258,6 +260,41 @@
   .sw-gold{border-color:var(--gold)}
   .sw-crim{border-color:var(--red);border-top-style:dashed}
   .sw-sib{border-color:#8fa2cc;border-top-style:dotted;border-top-width:3px}
+  .sw-blk{border-color:var(--blk)}
+  .sw-grn{border-color:var(--grn)}
+  .sw-grey{border-color:#6b6356}
+
+  /* ---------- Alliances map (second interactive map) ---------- */
+  .alliances{position:relative;background:var(--bg);border-top:1px solid var(--card-border)}
+  .all-head{max-width:860px;margin:0 auto;padding:50px 22px 16px;text-align:center}
+  .all-head h2{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:23px;
+    line-height:1.2;margin:0 0 9px;letter-spacing:.02em}
+  .all-head p{color:#cdc4b4;font-size:15.5px;line-height:1.6;margin:0}
+  #map2{position:relative;height:84vh;height:84dvh;min-height:540px;overflow:hidden;
+    border-top:1px solid var(--card-border);
+    background:
+      radial-gradient(900px 620px at 20% -4%,rgba(207,32,48,.11),transparent 60%),
+      radial-gradient(900px 620px at 80% 104%,rgba(55,168,98,.10),transparent 60%),
+      var(--bg)}
+  #map2 .all-ctrls{position:absolute;top:12px;right:12px;z-index:30}
+  #viewport2{position:absolute;inset:0;touch-action:none;cursor:grab}
+  #viewport2.grabbing{cursor:grabbing}
+  #world2{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+  .node.faded{opacity:.82;filter:grayscale(.45)}
+  .banner{position:absolute;width:340px;padding:13px 18px 14px;border-radius:16px;text-align:center;
+    border:1px solid var(--bc,var(--gold));
+    background:linear-gradient(160deg,var(--bc2),rgba(11,10,15,.55));
+    box-shadow:0 12px 40px rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+  .banner .bn-glyph{font-size:26px;line-height:1}
+  .banner .bn-name{font-family:'Cinzel',serif;font-weight:700;font-size:23px;letter-spacing:.06em;
+    color:#fff;margin-top:4px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+  .banner .bn-sub{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bc);margin-top:4px}
+  .vs-badge{position:absolute;width:76px;height:76px;border-radius:50%;
+    display:grid;place-items:center;font-family:'Cinzel',serif;font-weight:700;font-size:22px;
+    letter-spacing:.04em;color:var(--gold);border:2px solid var(--gold);background:rgba(19,17,26,.96);
+    box-shadow:0 0 0 6px rgba(11,10,15,.7),0 12px 34px rgba(0,0,0,.6);z-index:6}
+  .fallen-label{position:absolute;text-align:center;font-family:'Cinzel',serif;letter-spacing:.16em;
+    text-transform:uppercase;font-size:13px;color:var(--muted)}
 
   /* ---------- Detail sheet ---------- */
   .backdrop{position:fixed;inset:0;z-index:40;background:rgba(5,4,8,.62);backdrop-filter:blur(3px);
@@ -373,6 +410,32 @@
 
   <a class="scroll-cue" href="#guide">Read the guide<span>⌄</span></a>
 </div>
+
+<section class="alliances" id="alliances">
+  <div class="all-head">
+    <h2>Alliances of the Dance — The Blacks vs the Greens</h2>
+    <p>The same cast, divided by loyalty. The civil war splits House Targaryen and its allies into two camps — pinch, drag and tap any face to see who fought for whom.</p>
+  </div>
+  <div id="map2">
+    <div class="ctrls all-ctrls">
+      <div class="btn" id="zin2" aria-label="Zoom in">＋</div>
+      <div class="btn" id="zout2" aria-label="Zoom out">－</div>
+      <div class="btn" id="reset2" aria-label="Fit to screen">⤢</div>
+    </div>
+    <div id="viewport2">
+      <div id="world2"><svg class="links" id="links2"></svg></div>
+    </div>
+    <div class="line-legend">
+      <div class="lhead">The Sides</div>
+      <div class="lrow"><span class="sw sw-blk"></span>The Blacks</div>
+      <div class="lrow"><span class="sw sw-grn"></span>The Greens</div>
+      <div class="lrow"><span class="sw sw-grey"></span>Fell before the war</div>
+    </div>
+    <div class="hint" id="hint2">
+      <span><b>Pinch</b> to zoom</span><span><b>Drag</b> to pan</span><span><b>Tap</b> a face</span>
+    </div>
+  </div>
+</section>
 
 <main class="seo" id="guide">
   <article>
@@ -894,6 +957,200 @@ fit(false);
 window.addEventListener('resize',()=>fit(false));
 setTimeout(()=>document.getElementById('hint').classList.add('hide'),4600);
 viewport.addEventListener('pointerdown',()=>document.getElementById('hint').classList.add('hide'),{once:true});
+
+/* ============================================================
+   ALLIANCES MAP  —  Blacks vs Greens (reuses C / HOUSES / openSheet)
+   ============================================================ */
+(function(){
+  const map2=document.getElementById('map2');
+  if(!map2) return;
+  const viewport=document.getElementById('viewport2');
+  const world=document.getElementById('world2');
+  const svg=document.getElementById('links2');
+  const CW=2100, CH=1920, CARDW2=150;
+  world.style.width=CW+'px'; world.style.height=CH+'px';
+  svg.setAttribute('width',CW); svg.setAttribute('height',CH);
+
+  const FACTIONS=[
+    {key:'black',name:'The Blacks',sub:"Rhaenyra's Claim",glyph:'🐉',
+     bc:cssVar('--blk'),bc2:cssVar('--blk2'),line:'rgba(207,32,48,.6)',cx:560,
+     members:[
+       {id:'rhaenyra',role:'The Queen',leader:true},
+       {id:'daemon',role:'Lord Consort'},
+       {id:'rhaenys',role:'The Queen Who Never Was'},
+       {id:'corlys',role:'The Sea Snake'},
+       {id:'jace',role:'Heir to the Throne'},
+       {id:'luke',role:'Prince'},
+       {id:'joffrey',role:'Prince'},
+       {id:'baela',role:'Dragonrider'},
+       {id:'rhaena',role:'Lady'},
+       {id:'aegon3',role:'Prince'},
+       {id:'viserys2',role:'Prince'},
+     ]},
+    {key:'green',name:'The Greens',sub:"Aegon's Crown",glyph:'🗼',
+     bc:cssVar('--grn'),bc2:cssVar('--grn2'),line:'rgba(55,168,98,.55)',cx:1540,
+     members:[
+       {id:'aegon2',role:'The Crowned King',leader:true},
+       {id:'alicent',role:'Queen Dowager'},
+       {id:'otto',role:'Hand of the King'},
+       {id:'aemond',role:'Rider of Vhagar'},
+       {id:'daeron',role:'The Daring'},
+       {id:'helaena',role:'Queen'},
+       {id:'larys',role:'Master of Whisperers'},
+       {id:'jaehaerys',role:'Prince'},
+       {id:'jaehaera',role:'Princess'},
+       {id:'maelor',role:'Prince'},
+     ]},
+  ];
+  const FALLEN=[
+    {id:'viserys',role:'The Old King'},
+    {id:'aemma',role:'Queen'},
+    {id:'laenor',role:'Prince of Driftmark'},
+    {id:'laena',role:'Lady of Driftmark'},
+    {id:'harwin',role:'Breakbone'},
+    {id:'lyonel',role:'Lord of Harrenhal'},
+    {id:'rhea',role:'Lady of Runestone'},
+  ];
+
+  const NS='http://www.w3.org/2000/svg';
+  const cY=y=>y+47;                          // portrait centre Y for a node at top y
+  function line(x1,y1,x2,y2,color,w,dash){
+    const l=document.createElementNS(NS,'path');
+    l.setAttribute('d',`M${x1} ${y1} L${x2} ${y2}`);
+    l.setAttribute('stroke',color); l.setAttribute('stroke-width',w); l.setAttribute('fill','none');
+    l.setAttribute('stroke-linecap','round'); if(dash) l.setAttribute('stroke-dasharray',dash);
+    svg.appendChild(l);
+  }
+  function node(m){
+    const ch=byId[m.id]; if(!ch) return;
+    const H=HOUSES[ch.h];
+    const el=document.createElement('div');
+    el.className='node'+(m.faded?' faded':'');
+    el.style.left=m.x+'px'; el.style.top=m.y+'px';
+    el.dataset.id=ch.id;
+    el.style.setProperty('--hc',cssVar(H.c));
+    el.style.setProperty('--hc2',cssVar(H.c2));
+    el.innerHTML=`
+      <div class="portrait"><div class="frame${m.leader?' ring':''}">
+        <span class="mono">${initials(ch.n)}</span>
+        <img src="images/${ch.id}.jpg" alt="${ch.n}, ${m.role}" loading="lazy" onerror="this.remove()"></div>
+        <span class="glyph">${H.glyph}</span></div>
+      <div class="nm">${ch.n}</div>
+      <div class="ti">${m.role}</div>`;
+    world.appendChild(el);
+  }
+
+  /* ---- layout: each faction hangs off a central spine under its banner ---- */
+  const ROW0=472, ROWH=250, SUBX=160;
+  FACTIONS.forEach(F=>{
+    const b=document.createElement('div');
+    b.className='banner';
+    b.style.left=(F.cx-170)+'px'; b.style.top='18px';
+    b.style.setProperty('--bc',F.bc); b.style.setProperty('--bc2',F.bc2);
+    b.innerHTML=`<div class="bn-glyph">${F.glyph}</div><div class="bn-name">${F.name}</div><div class="bn-sub">${F.sub}</div>`;
+    world.appendChild(b);
+
+    const leader=F.members.find(m=>m.leader);
+    const rest=F.members.filter(m=>!m.leader);
+    leader.x=F.cx-CARDW2/2; leader.y=232;
+    let lastY=cY(leader.y);
+    rest.forEach((m,i)=>{
+      m.x=(i%2===0) ? F.cx-SUBX-CARDW2/2 : F.cx+SUBX-CARDW2/2;
+      m.y=ROW0+Math.floor(i/2)*ROWH;
+      lastY=Math.max(lastY,cY(m.y));
+    });
+    line(F.cx,142,F.cx,lastY,F.line,2.4);                       // spine
+    rest.forEach(m=>{                                            // branch to each ally
+      const cy=cY(m.y), portC=m.x+CARDW2/2;
+      const innerX=(portC<F.cx)?portC+47:portC-47;
+      line(F.cx,cy,innerX,cy,F.line,2);
+    });
+    node(leader); rest.forEach(node);
+  });
+
+  /* central divider + VS medallion */
+  line(1050,250,1050,1545,'rgba(201,162,75,.28)',1.5,'2 10');
+  const vs=document.createElement('div');
+  vs.className='vs-badge'; vs.style.left=(1050-38)+'px'; vs.style.top='150px';
+  vs.textContent='VS'; world.appendChild(vs);
+
+  /* unaligned / fell before the war */
+  const FY=1690, n=FALLEN.length, xa=250, xb=CW-250, step=(xb-xa)/(n-1);
+  line(170,FY-72,CW-170,FY-72,'rgba(201,162,75,.18)',1.5,'1 9');
+  const lab=document.createElement('div');
+  lab.className='fallen-label'; lab.style.left='0'; lab.style.top=(FY-58)+'px'; lab.style.width=CW+'px';
+  lab.textContent='Fell before the Dance · Unaligned';
+  world.appendChild(lab);
+  FALLEN.forEach((m,i)=>{ m.x=xa+i*step-CARDW2/2; m.y=FY; m.faded=true; node(m); });
+
+  /* ---- pan + zoom (scoped to this map) ---- */
+  const st={x:0,y:0,scale:1}, MIN=0.12, MAX=3.2;
+  const pointers=new Map();
+  let lastDist=0,lastMid=null,moved=false,downPt=null,maxPointers=0,lastTap=0;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const apply=()=>world.style.transform=`translate(${st.x}px,${st.y}px) scale(${st.scale})`;
+  function zoomAt(clientX,clientY,factor){
+    const r=viewport.getBoundingClientRect(), px=clientX-r.left, py=clientY-r.top;
+    const ns=clamp(st.scale*factor,MIN,MAX), rf=ns/st.scale;
+    st.x=px-(px-st.x)*rf; st.y=py-(py-st.y)*rf; st.scale=ns; apply();
+  }
+  function fit(anim){
+    const r=viewport.getBoundingClientRect(), pad=44;
+    const s=Math.min((r.width-pad*2)/CW,(r.height-pad*2)/CH);
+    if(anim) world.style.transition='transform .55s cubic-bezier(.22,1,.36,1)';
+    st.scale=s; st.x=(r.width-CW*s)/2; st.y=(r.height-CH*s)/2; apply();
+    if(anim) setTimeout(()=>world.style.transition='',580);
+  }
+  viewport.addEventListener('pointerdown',e=>{
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    viewport.setPointerCapture(e.pointerId); viewport.classList.add('grabbing');
+    if(pointers.size===1){moved=false;downPt={x:e.clientX,y:e.clientY};maxPointers=1;}
+    maxPointers=Math.max(maxPointers,pointers.size);
+    if(pointers.size===2)lastDist=0;
+  });
+  viewport.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId))return;
+    const prev=pointers.get(e.pointerId);
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===1){
+      st.x+=e.clientX-prev.x; st.y+=e.clientY-prev.y;
+      if(downPt&&Math.hypot(e.clientX-downPt.x,e.clientY-downPt.y)>7)moved=true;
+      apply();
+    }else if(pointers.size===2){
+      const pts=[...pointers.values()];
+      const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      const mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};
+      if(lastDist){ zoomAt(mid.x,mid.y,dist/lastDist); st.x+=mid.x-lastMid.x; st.y+=mid.y-lastMid.y; apply(); }
+      lastDist=dist; lastMid=mid; moved=true;
+    }
+  });
+  function onUp(e){
+    const wasMulti=maxPointers>1;
+    pointers.delete(e.pointerId);
+    if(pointers.size<2){lastDist=0;lastMid=null;}
+    if(pointers.size===0){
+      viewport.classList.remove('grabbing');
+      if(!moved&&!wasMulti){
+        const el=document.elementFromPoint(e.clientX,e.clientY);
+        const nd=el&&el.closest&&el.closest('.node');
+        if(nd){ openSheet(nd.dataset.id); }
+        else{ const now=Date.now(); if(now-lastTap<280){ zoomAt(e.clientX,e.clientY,1.7); lastTap=0; } else lastTap=now; }
+      }
+    }
+  }
+  viewport.addEventListener('pointerup',onUp);
+  viewport.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);if(pointers.size<2){lastDist=0;lastMid=null;}viewport.classList.remove('grabbing');});
+  viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.12:0.89);},{passive:false});
+  document.getElementById('zin2').onclick =()=>{const r=viewport.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35);};
+  document.getElementById('zout2').onclick=()=>{const r=viewport.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,0.74);};
+  document.getElementById('reset2').onclick=()=>fit(true);
+
+  fit(false);
+  window.addEventListener('resize',()=>fit(false));
+  const hint2=document.getElementById('hint2');
+  setTimeout(()=>hint2.classList.add('hide'),4600);
+  viewport.addEventListener('pointerdown',()=>hint2.classList.add('hide'),{once:true});
+})();
 </script>
 </body>
 </html>
