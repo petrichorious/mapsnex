@@ -280,6 +280,26 @@
   #viewport2{position:absolute;inset:0;touch-action:none;cursor:grab}
   #viewport2.grabbing{cursor:grabbing}
   #world2{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+  #map3{position:relative;height:84vh;height:84dvh;min-height:540px;overflow:hidden;
+    border-top:1px solid var(--card-border);
+    background:
+      radial-gradient(900px 620px at 18% -4%,rgba(201,162,75,.10),transparent 60%),
+      radial-gradient(800px 600px at 84% 102%,rgba(179,18,42,.10),transparent 60%),
+      var(--bg)}
+  #map3 .all-ctrls{position:absolute;top:12px;right:66px;z-index:30}
+  #viewport3{position:absolute;inset:0;touch-action:none;cursor:grab}
+  #viewport3.grabbing{cursor:grabbing}
+  #world3{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+  .dnode{position:absolute;width:160px;display:flex;flex-direction:column;align-items:center;
+    text-align:center;user-select:none}
+  .dnode .disc{width:90px;height:90px;border-radius:50%;display:grid;place-items:center;font-size:42px;
+    border:3px solid var(--dc,var(--gold));
+    background:radial-gradient(circle at 50% 32%,var(--dc2),rgba(11,10,15,.6));
+    box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 26px -5px var(--dc)}
+  .dnode .dn{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;margin-top:9px;
+    color:var(--ink);line-height:1.15;max-width:152px;text-shadow:0 2px 8px rgba(0,0,0,.9)}
+  .dnode .de{font-size:11px;font-style:italic;color:var(--muted);margin-top:1px;line-height:1.15;
+    max-width:152px;text-shadow:0 2px 8px rgba(0,0,0,.9)}
   .node.faded{opacity:.82;filter:grayscale(.45)}
   .banner{position:absolute;width:340px;padding:13px 18px 14px;border-radius:16px;text-align:center;
     border:1px solid var(--bc,var(--gold));
@@ -425,6 +445,7 @@
   <div class="nav-brand">House of the Dragon</div>
   <a class="nav-link" href="#map">Family Tree</a>
   <a class="nav-link" href="#alliances">Alliances Map</a>
+  <a class="nav-link" href="#dragons">Dragon Riders</a>
   <a class="nav-link" href="#characters">Characters</a>
   <a class="nav-link" href="#guide">Guide &amp; FAQ</a>
 </nav>
@@ -490,6 +511,32 @@
       <span><b>Pinch</b> to zoom</span><span><b>Drag</b> to pan</span><span><b>Tap</b> a face</span>
     </div>
     <a class="scroll-cue" href="#guide">Read the guide<span>⌄</span></a>
+  </div>
+</section>
+
+<section class="alliances" id="dragons">
+  <div class="all-head">
+    <h2>Dragons &amp; Their Riders</h2>
+    <p>The true weapons of the Dance. Each rider is bonded to a single dragon — and when dragon fights dragon, the realm burns. Tap a rider's face for their story.</p>
+  </div>
+  <div id="map3">
+    <div class="ctrls all-ctrls">
+      <div class="btn" id="zin3" aria-label="Zoom in">＋</div>
+      <div class="btn" id="zout3" aria-label="Zoom out">－</div>
+      <div class="btn" id="reset3" aria-label="Fit to screen">⤢</div>
+    </div>
+    <div id="viewport3">
+      <div id="world3"><svg class="links" id="links3"></svg></div>
+    </div>
+    <div class="line-legend">
+      <div class="lhead">Dragonfire</div>
+      <div class="lrow"><span class="sw sw-blk"></span>Black dragons</div>
+      <div class="lrow"><span class="sw sw-grn"></span>Green dragons</div>
+      <div class="lrow"><span class="sw-house"></span>Wild &amp; riderless</div>
+    </div>
+    <div class="hint" id="hint3">
+      <span><b>Pinch</b> to zoom</span><span><b>Drag</b> to pan</span><span><b>Tap</b> a rider</span>
+    </div>
   </div>
 </section>
 
@@ -1255,6 +1302,191 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
   const hint2=document.getElementById('hint2');
   setTimeout(()=>hint2.classList.add('hide'),4600);
   viewport.addEventListener('pointerdown',()=>hint2.classList.add('hide'),{once:true});
+})();
+
+/* ============================================================
+   DRAGON RIDERS MAP  —  rider faces bonded to their dragons
+   ============================================================ */
+(function(){
+  const map3=document.getElementById('map3');
+  if(!map3) return;
+  const viewport=document.getElementById('viewport3');
+  const world=document.getElementById('world3');
+  const svg=document.getElementById('links3');
+  const CW=2100, CH=2060, CARDW3=150, DW=160;
+  world.style.width=CW+'px'; world.style.height=CH+'px';
+  svg.setAttribute('width',CW); svg.setAttribute('height',CH);
+
+  const COL={
+    red:['#c0392b','rgba(60,14,14,.85)'], gold:['#d9a93a','rgba(54,40,10,.85)'],
+    grey:['#9aa6ad','rgba(30,34,38,.85)'], green:['#6fae84','rgba(16,40,26,.85)'],
+    pale:['#cfd2cf','rgba(34,36,34,.85)'], bronze:['#b08a4a','rgba(40,28,12,.85)'],
+    blue:['#7fb0d0','rgba(18,38,52,.85)'], cobalt:['#3a6fd0','rgba(14,28,60,.85)'],
+    olive:['#9a8f4a','rgba(40,36,14,.85)'], silver:['#c2cacf','rgba(32,36,40,.85)'],
+    brown:['#9c6b3f','rgba(40,24,12,.85)'], coal:['#6b6356','rgba(20,20,22,.9)'],
+  };
+  const D=(name,epithet,col,rider)=>({name,epithet,dc:COL[col][0],dc2:COL[col][1],rider});
+  const SIDES=[
+    {key:'black', cx:560, banner:'The Blacks', sub:"Rhaenyra's Dragonfire",
+     bc:cssVar('--blk'), bc2:cssVar('--blk2'), line:'rgba(207,32,48,.6)', glyph:'🐉',
+     drs:[
+       D('Caraxes','The Blood Wyrm','red','daemon'),
+       D('Meleys','The Red Queen','red','rhaenys'),
+       D('Syrax','Rhaenyra’s golden she-dragon','gold','rhaenyra'),
+       D('Seasmoke','Silver-grey & swift','grey','laenor'),
+       D('Vermax','Jacaerys’ mount','green','jace'),
+       D('Arrax','Young white dragon','pale','luke'),
+       D('Tyraxes','Joffrey’s young dragon','bronze','joffrey'),
+       D('Moondancer','Pale green & pearl','green','baela'),
+       D('Stormcloud','Swift pale grey','grey','aegon3'),
+     ]},
+    {key:'green', cx:1540, banner:'The Greens', sub:"Aegon's Dragonfire",
+     bc:cssVar('--grn'), bc2:cssVar('--grn2'), line:'rgba(55,168,98,.55)', glyph:'🐉',
+     drs:[
+       D('Vhagar','Oldest & largest · once Laena’s','olive','aemond'),
+       D('Sunfyre','The Golden','gold','aegon2'),
+       D('Dreamfyre','Pale blue & silver','blue','helaena'),
+       D('Tessarion','The Blue Queen','cobalt','daeron'),
+     ]},
+  ];
+  const WILD=[
+    D('Vermithor','The Bronze Fury','bronze'),
+    D('Silverwing','Queen Alysanne’s mount','silver'),
+    D('Sheepstealer','Wild brown beast','brown'),
+    D('Grey Ghost','Shy & pale','pale'),
+    D('The Cannibal','Eldest & deadliest','coal'),
+  ];
+
+  const NS='http://www.w3.org/2000/svg';
+  function line(x1,y1,x2,y2,color,w,dash){
+    const l=document.createElementNS(NS,'path');
+    l.setAttribute('d',`M${x1} ${y1} L${x2} ${y2}`);
+    l.setAttribute('stroke',color); l.setAttribute('stroke-width',w); l.setAttribute('fill','none');
+    l.setAttribute('stroke-linecap','round'); if(dash) l.setAttribute('stroke-dasharray',dash);
+    svg.appendChild(l);
+  }
+  function label(text,x,y,w,cls,color){
+    const d=document.createElement('div'); d.className=cls;
+    d.style.left=x+'px'; d.style.top=y+'px'; if(w)d.style.width=w+'px'; if(color)d.style.color=color;
+    d.textContent=text; world.appendChild(d);
+  }
+  function dnode(d,x,y){
+    const el=document.createElement('div'); el.className='dnode';
+    el.style.left=x+'px'; el.style.top=y+'px';
+    el.style.setProperty('--dc',d.dc); el.style.setProperty('--dc2',d.dc2);
+    el.innerHTML=`<div class="disc">🐉</div><div class="dn">${d.name}</div><div class="de">${d.epithet}</div>`;
+    world.appendChild(el);
+  }
+  function rnode(id,x,y,dragon){
+    const ch=byId[id]; if(!ch) return;
+    const H=HOUSES[ch.h];
+    const el=document.createElement('div'); el.className='node';
+    el.style.left=x+'px'; el.style.top=y+'px'; el.dataset.id=id;
+    el.style.setProperty('--hc',cssVar(H.c)); el.style.setProperty('--hc2',cssVar(H.c2));
+    el.innerHTML=`
+      <div class="portrait"><div class="frame">
+        <span class="mono">${initials(ch.n)}</span>
+        <img src="images/${id}.jpg" alt="${ch.n}, rider of ${dragon}" loading="lazy" onerror="this.remove()"></div>
+        <span class="glyph">${H.glyph}</span></div>
+      <div class="nm">${ch.n}</div>
+      <div class="ti">rider of ${dragon}</div>`;
+    world.appendChild(el);
+  }
+
+  /* banners + bonded pairs */
+  SIDES.forEach(F=>{
+    const b=document.createElement('div'); b.className='banner';
+    b.style.left=(F.cx-170)+'px'; b.style.top='18px';
+    b.style.setProperty('--bc',F.bc); b.style.setProperty('--bc2',F.bc2);
+    b.innerHTML=`<div class="bn-glyph">${F.glyph}</div><div class="bn-name">${F.banner}</div><div class="bn-sub">${F.sub}</div>`;
+    world.appendChild(b);
+    F.drs.forEach((d,i)=>{
+      const y=232+i*196, ex=F.cx-92-DW/2, rx=F.cx+92-CARDW3/2;
+      line(F.cx-47,y+46,F.cx+45,y+46,F.line,2.4);   // bond
+      dnode(d,ex,y);
+      if(d.rider) rnode(d.rider,rx,y,d.name);
+    });
+  });
+
+  /* wild & riderless dragons (fills the shorter Green column) */
+  label('Wild & Riderless Dragons',1540-260,1004,520,'side-label','rgba(201,162,75,.82)');
+  line(1540-300,1052,1540+300,1052,'rgba(201,162,75,.18)',1.5,'1 9');
+  WILD.forEach((d,i)=>{
+    let cx,y;
+    if(i<4){ cx=(i%2===0?1540-100:1540+100); y=1090+Math.floor(i/2)*186; }
+    else { cx=1540; y=1462; }
+    dnode(d,cx-DW/2,y);
+  });
+
+  /* ---- pan + zoom (scoped) ---- */
+  const st={x:0,y:0,scale:1}, MIN=0.12, MAX=3.2;
+  const pointers=new Map();
+  let lastDist=0,lastMid=null,moved=false,downPt=null,maxPointers=0,lastTap=0;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const apply=()=>world.style.transform=`translate(${st.x}px,${st.y}px) scale(${st.scale})`;
+  function zoomAt(clientX,clientY,factor){
+    const r=viewport.getBoundingClientRect(), px=clientX-r.left, py=clientY-r.top;
+    const ns=clamp(st.scale*factor,MIN,MAX), rf=ns/st.scale;
+    st.x=px-(px-st.x)*rf; st.y=py-(py-st.y)*rf; st.scale=ns; apply();
+  }
+  function fit(anim){
+    const r=viewport.getBoundingClientRect(), pad=44;
+    if(r.width===0) return;
+    const s=Math.min((r.width-pad*2)/CW,(r.height-pad*2)/CH);
+    if(anim) world.style.transition='transform .55s cubic-bezier(.22,1,.36,1)';
+    st.scale=s; st.x=(r.width-CW*s)/2; st.y=(r.height-CH*s)/2; apply();
+    if(anim) setTimeout(()=>world.style.transition='',580);
+  }
+  viewport.addEventListener('pointerdown',e=>{
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    viewport.setPointerCapture(e.pointerId); viewport.classList.add('grabbing');
+    if(pointers.size===1){moved=false;downPt={x:e.clientX,y:e.clientY};maxPointers=1;}
+    maxPointers=Math.max(maxPointers,pointers.size);
+    if(pointers.size===2)lastDist=0;
+  });
+  viewport.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId))return;
+    const prev=pointers.get(e.pointerId);
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===1){
+      st.x+=e.clientX-prev.x; st.y+=e.clientY-prev.y;
+      if(downPt&&Math.hypot(e.clientX-downPt.x,e.clientY-downPt.y)>7)moved=true;
+      apply();
+    }else if(pointers.size===2){
+      const pts=[...pointers.values()];
+      const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      const mid={x:(pts[0].x+pts[1].x)/2,y:(pts[0].y+pts[1].y)/2};
+      if(lastDist){ zoomAt(mid.x,mid.y,dist/lastDist); st.x+=mid.x-lastMid.x; st.y+=mid.y-lastMid.y; apply(); }
+      lastDist=dist; lastMid=mid; moved=true;
+    }
+  });
+  function onUp(e){
+    const wasMulti=maxPointers>1;
+    pointers.delete(e.pointerId);
+    if(pointers.size<2){lastDist=0;lastMid=null;}
+    if(pointers.size===0){
+      viewport.classList.remove('grabbing');
+      if(!moved&&!wasMulti){
+        const el=document.elementFromPoint(e.clientX,e.clientY);
+        const nd=el&&el.closest&&el.closest('.node');
+        if(nd){ openSheet(nd.dataset.id); }
+        else{ const now=Date.now(); if(now-lastTap<280){ zoomAt(e.clientX,e.clientY,1.7); lastTap=0; } else lastTap=now; }
+      }
+    }
+  }
+  viewport.addEventListener('pointerup',onUp);
+  viewport.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);if(pointers.size<2){lastDist=0;lastMid=null;}viewport.classList.remove('grabbing');});
+  viewport.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.12:0.89);},{passive:false});
+  document.getElementById('zin3').onclick =()=>{const r=viewport.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.35);};
+  document.getElementById('zout3').onclick=()=>{const r=viewport.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,0.74);};
+  document.getElementById('reset3').onclick=()=>fit(true);
+
+  fit(false);
+  window.addEventListener('resize',()=>fit(false));
+  window.__fitDragons=()=>fit(false);
+  const hint3=document.getElementById('hint3');
+  setTimeout(()=>hint3.classList.add('hide'),4600);
+  viewport.addEventListener('pointerdown',()=>hint3.classList.add('hide'),{once:true});
 })();
 
 /* ============================================================
