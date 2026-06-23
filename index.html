@@ -170,10 +170,10 @@
 
   /* ---------- Top bar ---------- */
   .topbar{position:absolute;top:0;left:0;right:0;z-index:30;
-    padding:calc(env(safe-area-inset-top) + 9px) 12px 9px;
+    padding:calc(env(safe-area-inset-top) + 9px) 12px 9px 66px;
     background:linear-gradient(180deg,rgba(11,10,15,.97) 72%,rgba(11,10,15,0));
     pointer-events:none}
-  .bar-top{display:flex;align-items:center;gap:10px;padding-right:56px}
+  .bar-top{display:flex;align-items:center;gap:10px}
   .title{pointer-events:none}
   .title h1{margin:0;display:flex;flex-direction:column}
   .title .t-big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:.1em;
@@ -266,27 +266,27 @@
 
   /* ---------- Alliances map (second interactive map) ---------- */
   .alliances{position:relative;background:var(--bg);border-top:1px solid var(--card-border)}
-  .all-head{max-width:860px;margin:0 auto;padding:50px 22px 16px;text-align:center}
+  .all-head{max-width:860px;margin:0 auto;padding:60px 22px 14px;text-align:center}
   .all-head h2{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--gold);font-size:23px;
     line-height:1.2;margin:0 0 9px;letter-spacing:.02em}
   .all-head p{color:#cdc4b4;font-size:15.5px;line-height:1.6;margin:0}
-  #map2{position:relative;height:84vh;height:84dvh;min-height:540px;overflow:hidden;
+  #map2{position:relative;height:calc(100dvh - 152px);min-height:480px;overflow:hidden;
     border-top:1px solid var(--card-border);
     background:
       radial-gradient(900px 620px at 20% -4%,rgba(207,32,48,.11),transparent 60%),
       radial-gradient(900px 620px at 80% 104%,rgba(55,168,98,.10),transparent 60%),
       var(--bg)}
-  #map2 .all-ctrls{position:absolute;top:12px;right:66px;z-index:30}
+  #map2 .all-ctrls{position:absolute;top:12px;right:12px;z-index:30}
   #viewport2{position:absolute;inset:0;touch-action:none;cursor:grab}
   #viewport2.grabbing{cursor:grabbing}
   #world2{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
-  #map3{position:relative;height:84vh;height:84dvh;min-height:540px;overflow:hidden;
+  #map3{position:relative;height:calc(100dvh - 152px);min-height:480px;overflow:hidden;
     border-top:1px solid var(--card-border);
     background:
       radial-gradient(900px 620px at 18% -4%,rgba(201,162,75,.10),transparent 60%),
       radial-gradient(800px 600px at 84% 102%,rgba(179,18,42,.10),transparent 60%),
       var(--bg)}
-  #map3 .all-ctrls{position:absolute;top:12px;right:66px;z-index:30}
+  #map3 .all-ctrls{position:absolute;top:12px;right:12px;z-index:30}
   #viewport3{position:absolute;inset:0;touch-action:none;cursor:grab}
   #viewport3.grabbing{cursor:grabbing}
   #world3{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
@@ -327,8 +327,12 @@
   .sw-house{flex:none;width:15px;height:15px;border-radius:5px;margin-right:9px;
     border:1.5px solid var(--gold);background:rgba(201,162,75,.14)}
 
+  /* ---------- Page views (one map per "page") ---------- */
+  .view{display:none}
+  .view.active{display:block}
+
   /* ---------- Site menu (hamburger + drawer) ---------- */
-  .menu-btn{position:fixed;top:14px;right:14px;z-index:62;width:44px;height:44px;border-radius:12px;
+  .menu-btn{position:fixed;top:14px;left:14px;z-index:62;width:44px;height:44px;border-radius:12px;
     border:1px solid var(--card-border);background:rgba(19,17,26,.88);backdrop-filter:blur(8px);
     display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
     box-shadow:0 6px 20px rgba(0,0,0,.45);transition:background .2s,transform .12s}
@@ -342,10 +346,10 @@
   .nav-backdrop{position:fixed;inset:0;z-index:58;background:rgba(5,4,8,.62);backdrop-filter:blur(3px);
     opacity:0;pointer-events:none;transition:opacity .3s ease}
   .nav-backdrop.open{opacity:1;pointer-events:auto}
-  .nav-drawer{position:fixed;top:0;right:0;bottom:0;z-index:60;width:min(320px,84vw);
+  .nav-drawer{position:fixed;top:0;left:0;bottom:0;z-index:60;width:min(320px,84vw);
     background:linear-gradient(180deg,var(--bg2),var(--bg));
-    border-left:1px solid rgba(201,162,75,.3);box-shadow:-18px 0 60px rgba(0,0,0,.7);
-    transform:translateX(100%);transition:transform .34s cubic-bezier(.22,1,.36,1);
+    border-right:1px solid rgba(201,162,75,.3);box-shadow:18px 0 60px rgba(0,0,0,.7);
+    transform:translateX(-100%);transition:transform .34s cubic-bezier(.22,1,.36,1);
     padding:calc(env(safe-area-inset-top) + 80px) 0 30px;display:flex;flex-direction:column;gap:2px}
   .nav-drawer.open{transform:translateX(0)}
   .nav-brand{font-family:'Space Grotesk',sans-serif;font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;
@@ -357,6 +361,8 @@
     background:var(--gold);opacity:.45;transition:opacity .18s}
   .nav-link:hover{background:rgba(201,162,75,.08);color:var(--gold)}
   .nav-link:hover::before{opacity:1}
+  .nav-link.current{color:var(--gold);background:rgba(201,162,75,.06)}
+  .nav-link.current::before{opacity:1}
 
   /* ---------- Detail sheet ---------- */
   .backdrop{position:fixed;inset:0;z-index:40;background:rgba(5,4,8,.62);backdrop-filter:blur(3px);
@@ -405,7 +411,7 @@
   .scroll-cue span{display:block;font-size:18px;color:var(--gold);margin-top:2px}
   @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
-  .seo{max-width:860px;margin:0 auto;padding:54px 22px 80px}
+  .seo{max-width:860px;margin:0 auto;padding:74px 22px 80px}
   .seo h2{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--gold);font-size:23px;
     line-height:1.2;margin:0 0 14px;letter-spacing:.02em}
   .seo h3{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ink);font-size:16px;margin:0 0 3px}
@@ -443,13 +449,13 @@
 <div class="nav-backdrop" id="navBackdrop"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Site menu" aria-hidden="true">
   <div class="nav-brand">House of the Dragon</div>
-  <a class="nav-link" href="#map">Family Tree</a>
-  <a class="nav-link" href="#alliances">Alliances Map</a>
-  <a class="nav-link" href="#dragons">Dragon Riders</a>
-  <a class="nav-link" href="#characters">Characters</a>
-  <a class="nav-link" href="#guide">Guide &amp; FAQ</a>
+  <a class="nav-link" href="#tree" data-view="tree">Family Tree</a>
+  <a class="nav-link" href="#alliances" data-view="alliances">Alliances Map</a>
+  <a class="nav-link" href="#dragons" data-view="dragons">Dragon Riders</a>
+  <a class="nav-link" href="#guide" data-view="guide">Guide &amp; FAQ</a>
 </nav>
 
+<div class="view active" id="view-tree">
 <div id="map">
   <div id="viewport">
     <div id="world">
@@ -483,9 +489,10 @@
     <div class="lrow"><span class="sw sw-sib"></span>Siblings</div>
   </div>
 
-  <a class="scroll-cue" href="#alliances">The Alliances Map<span>⌄</span></a>
+</div>
 </div>
 
+<div class="view" id="view-alliances">
 <section class="alliances" id="alliances">
   <div class="all-head">
     <h2>Alliances of the Dance — The Blacks vs the Greens</h2>
@@ -510,10 +517,11 @@
     <div class="hint" id="hint2">
       <span><b>Pinch</b> to zoom</span><span><b>Drag</b> to pan</span><span><b>Tap</b> a face</span>
     </div>
-    <a class="scroll-cue" href="#guide">Read the guide<span>⌄</span></a>
   </div>
 </section>
+</div>
 
+<div class="view" id="view-dragons">
 <section class="alliances" id="dragons">
   <div class="all-head">
     <h2>Dragons &amp; Their Riders</h2>
@@ -539,7 +547,9 @@
     </div>
   </div>
 </section>
+</div>
 
+<div class="view" id="view-guide">
 <main class="seo" id="guide">
   <article>
     <header>
@@ -629,6 +639,7 @@
 <footer class="seo-foot">
   <p>An interactive, mobile-first <strong>House of the Dragon family tree</strong> and character map covering the Dance of the Dragons. Character photographs are used for reference and remain the property of their respective rights holders. This is an unofficial fan-made guide and is not affiliated with HBO or Warner Bros.</p>
 </footer>
+</div>
 
 <div class="backdrop" id="backdrop"></div>
 <div class="sheet" id="sheet">
@@ -1506,8 +1517,35 @@ viewport.addEventListener('pointerdown',()=>document.getElementById('hint').clas
   }
   btn.addEventListener('click',()=>setOpen(!drawer.classList.contains('open')));
   back.addEventListener('click',()=>setOpen(false));
-  drawer.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',()=>setOpen(false)));
   document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false);});
+
+  /* ---- page-flip view router ---- */
+  const VIEWS=['tree','alliances','dragons','guide'];
+  const links=[...drawer.querySelectorAll('.nav-link')];
+  function showView(key){
+    if(!VIEWS.includes(key)) key='tree';
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const el=document.getElementById('view-'+key);
+    if(el) el.classList.add('active');
+    links.forEach(a=>{
+      const on=a.dataset.view===key;
+      a.classList.toggle('current',on);
+      if(on) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+    });
+    setOpen(false);
+    window.scrollTo(0,0);
+    /* let the now-visible map recompute its fit */
+    requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+  }
+  function route(){ showView((location.hash||'').replace('#','')); }
+  links.forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();
+    const key=a.dataset.view;
+    if(location.hash!=='#'+key) history.replaceState(null,'','#'+key);
+    showView(key);
+  }));
+  window.addEventListener('hashchange',route);
+  route();
 })();
 </script>
 </body>
