@@ -1,0 +1,23 @@
+{
+  "name": "mapsnex",
+  "version": "1.0.0",
+  "description": "House of the Dragon Family Tree - Interactive Character Map",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petrichorious/mapsnex.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/petrichorious/mapsnex/issues"
+  },
+  "homepage": "https://github.com/petrichorious/mapsnex#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
